@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Ikat Visualization</title>
+    <style type="text/css">
+      .warp, .weft { fill:none; stroke-width: 10; }
+      .weft { stroke: red;  color: red; }
+      .warp { stroke: gray; color: gray; opacity: 0.5; }
+  </style>
+  </head>
+  <body>
+    <p><span class="warp">Warp</span> and <span class="weft">weft</span> on a loom:</p>
+    <div>
+    <svg height="200" width="500">
+      <symbol id="warp1">
+	<polyline class="warp" points="30,10 30,200" />
+      </symbol>
+      <use x="0"  y="0" xlink:href="#warp1" />
+      <use x="40" y="0" xlink:href="#warp1" />
+      <use x="80" y="0" xlink:href="#warp1" />
+      <path class="weft" d="M10,20 120,20 
+			    M120,20 A10,10 0 1,1 120,40 
+			    M120,40 20,40 
+			    M 20,40 A10,10 0 1,0  20,60 
+			    M 20,60 120,60 
+			    M120,60 A10,10 0 1,1 120,80 
+			    M120,80 20,80 
+			    M 20,80 A10,10 0 1,0  20,100 
+			    " />
+      <use x="20" y="0" xlink:href="#warp1" />
+      <use x="60" y="0" xlink:href="#warp1" />
+      Sorry, your browser does not support inline SVG.
+    </svg>
+    </div>
+    <p><a href="https://en.wikipedia.org/wiki/Warp_and_weft">Warp and weft on Wikipedia</a>.</p>    
+  <script type="text/javascript">
+   function autorun() {
+    
+   }
+   if (document.addEventListener) document.addEventListener("DOMContentLoaded", autorun, false);
+   else if (document.attachEvent) document.attachEvent("onreadystatechange", autorun);
+   else window.onload = autorun;
+  </script>
+  </body>
+</html>
