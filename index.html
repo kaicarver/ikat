@@ -55,20 +55,23 @@
     
   <script type="text/javascript">
       function autorun() {
+	var scale = 10; // basic unit of everything
+	var backandforths = 4; // weft starts with shuttle from left to right, than x backa and forth trips
 	var path = '<path class="weft" d="';
-	var maxpicks = 1 + 2 * 4; // number of horizontal lines
-	var width = 100; // width of the straight lines between turns
-	var y = 20; // vertical position of start of weft
-	path += 'M5,'+y+' '+(20+width)+','+y+' '; // first pick starts straight
+	var maxpicks = 1 + 2 * backandforths; // number of horizontal lines
+	var width = 10 * scale; // width of the straight lines between turns
+	var i = 2 * scale; // basic interval: space between each vertical warp "end", and each horizontal weft "pick"
+	var y = i; // vertical position of start of weft
+	path += 'M'+(i/4)+','+y+' '+(i+width)+','+y+' '; // first pick starts straight, crosses loom from left to right
 	for (var pick = 1; pick < maxpicks; pick += 2) {
-	  // 2 picks at a time
-	  path += 'M'+(20+width)+','+y+' A10,10 0 1,1 '+(20+width)+','+(y+20)+' ';
-	  path += 'M'+(20+width)+','+(y+20)+' 20,'+(y+20)+' ';
-	  path += 'M 20,'+(y+20)+' A10,10 0 1,0  20,'+(y+40)+' ';	  
-	  path += 'M 20,'+(y+40)+' '+(20+width)+','+(y+40)+' ';
-	  y += 40;
+	  // 2 picks at a time, back and forth
+	  path += 'M'+(i+width)+','+y+' A'+(i/2)+','+(i/2)+' 0 1,1 '+(i+width)+','+(y+i)+' '; // right side half-circle
+	  path += 'M'+(i+width)+','+(y+i)+' '+i+','+(y+i)+' '; // pick crosses loom from right to left
+	  path += 'M '+i+','+(y+i)+' A'+(i/2)+','+(i/2)+' 0 1,0  '+i+','+(y+2*i)+' '; // left side half-circle
+	  path += 'M '+i+','+(y+2*i)+' '+(i+width)+','+(y+2*i)+' '; // pick crosses loom from left to right
+	  y += 2*i;
 	}
-	path += 'M '+(20+width)+','+y+' '+(20+width+15)+','+y+' '; // last pick ends straight
+	path += 'M '+(i+width)+','+y+' '+(i+width+3/4*i)+','+y+' '; // last pick ends straight
 	path += '" />';
 	document.getElementById('loom').innerHTML += path;
       }
