@@ -73,11 +73,13 @@
 	var path = '';
 	// draw warp
 	// define one "end"
-	path += '<symbol id="oneend"><polyline class="warp" points="'+(1.5*i)+','+(0.5*i)+' '+(1.5*i)+','+((numpicks+2)*i)+'" /></symbol>';
+	setDrawBuffered(false);
+	drawPart('<symbol id="oneend"><polyline class="warp" points="'+(1.5*i)+','+(0.5*i)+' '+(1.5*i)+','+((numpicks+2)*i)+'" /></symbol>');
 	// draw the specified number of ends
 	for (var end = 0; end < numends; end++) {
-	  path += '<use x="'+end*i+'"  y="0" xlink:href="#oneend" />';
+	  drawPart('<use x="'+end*i+'"  y="0" xlink:href="#oneend" />');
 	}
+	drawBuffer();
 	// draw weft
 	path += '<path class="weft" d="';
 	path += 'M'+(i/4)+','+y+' '+(i+width)+','+y+' '; // first pick starts straight, crosses loom from left to right
@@ -93,13 +95,29 @@
 	path += '" />';
 	displayPath(path);
       }
-      var bufferedPath = '';
-      function drawPathPart(part, buffered) {
-	if (buffered) {
-	  bufferedPath += part;
+      var bufferedDraw = false;
+      var delayedDraw = true;
+      var delay = 0;
+      var delayInterval = 250;
+      var bufferedSVG = '';
+      function setDrawBuffered(bool) {
+	bufferedDraw = bool;
+      }
+      function drawPart(part) {
+	if (bufferedDraw) {
+	  bufferedSVG += part;
 	} else {
-	  displayPath(part);
+	  if (delayedDraw) {
+	    setTimeout(function(){ displayPath(part); }, delay);
+	    delay += delayInterval;
+	  } else {
+	    displayPath(part);
+	  }
 	}
+      }
+      function drawBuffer() {
+	displayPath(bufferedSVG);
+	bufferedSVG = '';
       }
       function displayPath(path) {
 	document.getElementById('loom').innerHTML += path;
