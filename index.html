@@ -80,19 +80,18 @@
 	var width = numends * i; // width of the "ends", i.e. straight lines between turns
 	var y = i; // vertical position of start of weft
 	// draw
-	var path = '';
 	// TODO: because can't specify z-order in SVG, have to draw warp and weft intertwined, not one after the other
 	// draw warp
-	// define one "end"
-	setDrawDelayed();
-	drawPart('<symbol id="oneend"><polyline class="warp" points="'+(1.5*i)+','+(0.5*i)+' '+(1.5*i)+','+((numpicks+2)*i)+'" /></symbol>');
+	var drawDelayed = true; // delayed implements a Javascript animation
+	setDrawDelayed(drawDelayed);
+	setDelayInterval(50);
+	drawPart('<symbol id="oneend"><polyline class="warp" points="'+(1.5*i)+','+(0.5*i)+' '+(1.5*i)+','+((numpicks+2)*i)+'" /></symbol>'); // define one "end"
 	// draw the specified number of ends
 	for (var end = 0; end < numends; end++) {
 	  drawPart('<use x="'+end*i+'"  y="0" xlink:href="#oneend" />');
 	}
-	drawBuffer();
 	// draw weft
-	setDelayInterval(250);
+	setDelayInterval(100);
 	drawPart(drawPath('M'+(i/4)+','+y+' '+(i+width)+','+y+' ')); // first pick starts straight, crosses loom from left to right
 	for (var pick = 1; pick < numpicks; pick += 2) {
 	  // 2 picks at a time, back and forth
@@ -103,15 +102,24 @@
 	  y += 2*i;
 	}
 	drawPart(drawPath('M '+(i+width)+','+y+' '+(i+width+3/4*i)+','+y+' ')); // last pick ends straight
+	if (!drawDelayed) {
+	  drawBuffer();
+	}
       }
       var bufferedDraw = false;
       var delayedDraw = true;
       var delay = 0;
       var delayInterval = 100;
       var bufferedSVG = '';
-      function setDrawDelayed(bool) {
-	setDrawBuffered();
-	delayedDraw = true;
+      function setDrawDelayed(delayed) {
+	if (delayed) {
+	  setDrawBuffered(false);
+	  delayedDraw = true;
+	} else {
+	  // buffered draw, all in one go
+	  setDrawBuffered(true);
+	  delayedDraw = false;
+	}
       }
       function setDrawBuffered(bool) {
 	bufferedDraw = bool;
