@@ -21,7 +21,7 @@
     </style>
   </head>
   <body>
-    <p><span class="warp">Warp</span> and <span class="weft">weft</span> on a loom, static and dynamic drawings:</p>
+    <p><span class="warp">Warp</span> and <span class="weft">weft</span> on a loom, static and dynamic SVG drawings, with CSS and JavaScript animation:</p>
     <div>
     <svg height="250" width="300">
       <symbol id="warp1">
@@ -50,6 +50,16 @@
       </svg>
     </div>
     <p>
+      <pre>
+	TODO:
+	- show a pattern on the weft
+	- show weft/warp intersections with weft alternately on top or under warp
+	- way to input the various parameters:
+	    pattern, size of warp, length of weft, visualization details
+	- way to export weft pattern in the format needed by the yarn-dyeing machine...
+      </pre>
+    </p>
+    <p>
       More info: <a href="https://en.wikipedia.org/wiki/Warp_and_weft">warp and weft</a>,
       <a href="https://en.wikipedia.org/wiki/Ikat">ikat weaving</a>.
       <a href="https://github.com/kaicarver/ikat">Source code</a>.
@@ -71,9 +81,10 @@
 	var y = i; // vertical position of start of weft
 	// draw
 	var path = '';
+	// TODO: because can't specify z-order in SVG, have to draw warp and weft intertwined, not one after the other
 	// draw warp
 	// define one "end"
-	setDrawBuffered(false);
+	setDrawDelayed();
 	drawPart('<symbol id="oneend"><polyline class="warp" points="'+(1.5*i)+','+(0.5*i)+' '+(1.5*i)+','+((numpicks+2)*i)+'" /></symbol>');
 	// draw the specified number of ends
 	for (var end = 0; end < numends; end++) {
@@ -81,27 +92,39 @@
 	}
 	drawBuffer();
 	// draw weft
-	path += '<path class="weft" d="';
-	path += 'M'+(i/4)+','+y+' '+(i+width)+','+y+' '; // first pick starts straight, crosses loom from left to right
+	setDelayInterval(250);
+	drawPart(drawPath('M'+(i/4)+','+y+' '+(i+width)+','+y+' ')); // first pick starts straight, crosses loom from left to right
 	for (var pick = 1; pick < numpicks; pick += 2) {
 	  // 2 picks at a time, back and forth
-	  path += 'M'+(i+width)+','+y+' A'+(i/2)+','+(i/2)+' 0 1,1 '+(i+width)+','+(y+i)+' '; // right side half-circle
-	  path += 'M'+(i+width)+','+(y+i)+' '+i+','+(y+i)+' '; // pick crosses loom from right to left
-	  path += 'M '+i+','+(y+i)+' A'+(i/2)+','+(i/2)+' 0 1,0  '+i+','+(y+2*i)+' '; // left side half-circle
-	  path += 'M '+i+','+(y+2*i)+' '+(i+width)+','+(y+2*i)+' '; // pick crosses loom from left to right
+	  drawPart(drawPath('M'+(i+width)+','+y+' A'+(i/2)+','+(i/2)+' 0 1,1 '+(i+width)+','+(y+i)+' ')); // right side half-circle
+	  drawPart(drawPath('M'+(i+width)+','+(y+i)+' '+i+','+(y+i)+' ')); // pick crosses loom from right to left
+	  drawPart(drawPath('M '+i+','+(y+i)+' A'+(i/2)+','+(i/2)+' 0 1,0  '+i+','+(y+2*i)+' ')); // left side half-circle
+	  drawPart(drawPath('M '+i+','+(y+2*i)+' '+(i+width)+','+(y+2*i)+' ')); // pick crosses loom from left to right
 	  y += 2*i;
 	}
-	path += 'M '+(i+width)+','+y+' '+(i+width+3/4*i)+','+y+' '; // last pick ends straight
-	path += '" />';
-	displayPath(path);
+	drawPart(drawPath('M '+(i+width)+','+y+' '+(i+width+3/4*i)+','+y+' ')); // last pick ends straight
       }
       var bufferedDraw = false;
       var delayedDraw = true;
       var delay = 0;
-      var delayInterval = 250;
+      var delayInterval = 100;
       var bufferedSVG = '';
+      function setDrawDelayed(bool) {
+	setDrawBuffered();
+	delayedDraw = true;
+      }
       function setDrawBuffered(bool) {
 	bufferedDraw = bool;
+      }
+      function setDelayInterval(millisec) {
+	delayInterval = millisec;
+      }
+      function drawPath(description) {
+	var p = '';
+	p += '<path class="weft" d="';
+	p += description;
+	p += '" />';
+	return p;
       }
       function drawPart(part) {
 	if (bufferedDraw) {
