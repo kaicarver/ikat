@@ -6,8 +6,18 @@
     <style type="text/css">
       div { display: inline; }
       .warp, .weft { fill:none; stroke-width: 10; }
-      .weft { stroke: red;  color: red; }
+      .weft { stroke: red;  color: red; opacity: 0.5; }
       .warp { stroke: gray; color: gray; opacity: 0.5; }
+      #weftdemo {
+	  stroke-dasharray: 90;
+	  stroke-dashoffset: 100;
+	  animation: dash 4s linear forwards;
+      }
+      @keyframes dash {
+	  to {
+	      stroke-dashoffset: 0;
+	  }
+      }
     </style>
   </head>
   <body>
@@ -20,7 +30,7 @@
       <use x="0"  y="0" xlink:href="#warp1" />
       <use x="40" y="0" xlink:href="#warp1" />
       <use x="80" y="0" xlink:href="#warp1" />
-      <path class="weft" d="M10,20 120,20 
+      <path id="weftdemo" class="weft" d="M10,20 120,20 
 			    M120,20 A10,10 0 1,1 120,40 
 			    M120,40 20,40 
 			    M 20,40 A10,10 0 1,0  20,60 
@@ -47,9 +57,12 @@
     
   <script type="text/javascript">
       function autorun() {
+	drawLoom();
+      }
+      function drawLoom() {
 	// basic parameters determining size of warp and weft on loom
 	var numbackandforths = 4; // weft starts with shuttle from left to right, than x back and forth trips
-	var numends = 6; // number of "ends", i.e. vertical lengths of yarn, composing the warp
+	var numends = 8; // number of "ends", i.e. vertical lengths of yarn, composing the warp
 	var scale = 10; // basic unit of everything
 	// calculated parameters
 	var numpicks = 1 + 2 * numbackandforths; // total number of "picks", i.e. horizontal lengths of yarn composing the weft
@@ -78,11 +91,22 @@
 	}
 	path += 'M '+(i+width)+','+y+' '+(i+width+3/4*i)+','+y+' '; // last pick ends straight
 	path += '" />';
+	displayPath(path);
+      }
+      var bufferedPath = '';
+      function drawPathPart(part, buffered) {
+	if (buffered) {
+	  bufferedPath += part;
+	} else {
+	  displayPath(part);
+	}
+      }
+      function displayPath(path) {
 	document.getElementById('loom').innerHTML += path;
       }
-   if (document.addEventListener) document.addEventListener("DOMContentLoaded", autorun, false);
-   else if (document.attachEvent) document.attachEvent("onreadystatechange", autorun);
-   else window.onload = autorun;
+      if (document.addEventListener) document.addEventListener("DOMContentLoaded", autorun, false);
+      else if (document.attachEvent) document.attachEvent("onreadystatechange", autorun);
+      else window.onload = autorun;
   </script>
   </body>
 </html>
