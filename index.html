@@ -50,6 +50,9 @@
       </svg>
     </div>
     <p>
+      <button onclick="resetDrawing(); drawLoom(true)">Animate</button>
+    </p>
+    <p>
       <pre>
 	TODO:
 	- show a pattern on the weft
@@ -69,7 +72,8 @@
       function autorun() {
 	drawLoom();
       }
-      function drawLoom() {
+      function drawLoom(drawDelayed) {
+	// drawDelayed parameter implements a Javascript animation when true
 	// basic parameters determining size of warp and weft on loom
 	var numbackandforths = 4; // weft starts with shuttle from left to right, than x back and forth trips
 	var numends = 8; // number of "ends", i.e. vertical lengths of yarn, composing the warp
@@ -82,7 +86,6 @@
 	// draw
 	// TODO: because can't specify z-order in SVG, have to draw warp and weft intertwined, not one after the other
 	// draw warp
-	var drawDelayed = true; // delayed implements a Javascript animation
 	setDrawDelayed(drawDelayed);
 	setDelayInterval(50);
 	drawPart('<symbol id="oneend"><polyline class="warp" points="'+(1.5*i)+','+(0.5*i)+' '+(1.5*i)+','+((numpicks+2)*i)+'" /></symbol>'); // define one "end"
@@ -152,6 +155,13 @@
       }
       function displayPath(path) {
 	document.getElementById('loom').innerHTML += path;
+      }
+      function resetDrawing() {
+	delay = 0;
+	clearPath();
+      }
+      function clearPath() {
+	document.getElementById('loom').innerHTML = '';
       }
       if (document.addEventListener) document.addEventListener("DOMContentLoaded", autorun, false);
       else if (document.attachEvent) document.attachEvent("onreadystatechange", autorun);
