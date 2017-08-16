@@ -8,14 +8,12 @@
       .warp, .weft { fill:none; stroke-width: 10; }
       .weft { stroke: red;  color: red; opacity: 0.5; }
       .warp { stroke: gray; color: gray; opacity: 0.5; }
+      svg { border: solid lightgray 1px; }
     </style>
   </head>
   <body>
     <p><span class="warp">Warp</span> and <span class="weft">weft</span> on a loom, dynamic SVG drawing, with JavaScript animation:</p>
-    <div>
-      <svg id="loom" height="300" width="350">
-      Sorry, your browser does not support inline SVG.
-      </svg>
+    <div id="svgarea">
     </div>
     <p>
       <button onclick="resetDrawing(); drawLoom(true)">Animate</button>
@@ -37,9 +35,6 @@
     </p>
     
   <script type="text/javascript">
-      function autorun() {
-	drawLoom();
-      }
       // basic parameters determining size of warp and weft on loom
       var numbackandforths = 5; // weft starts with shuttle from left to right, than x back and forth trips
       var numends = 11; // number of "ends", i.e. vertical lengths of yarn, composing the warp
@@ -49,6 +44,10 @@
       var i = 2 * scale; // basic interval: space between each vertical warp "end", and each horizontal weft "pick"
       var width = numends * i; // width of the "ends", i.e. straight lines between turns
       var y = i; // vertical position of start of weft
+      function autorun() {
+	resetDrawing();
+	drawLoom();
+      }
       function drawLoom(drawDelayed) {
 	// drawDelayed parameter implements a Javascript animation when true
 	// draw
@@ -59,7 +58,7 @@
 	drawPart('<symbol id="oneend"><polyline class="warp" points="'+(1.5*i)+','+(0.5*i)+' '+(1.5*i)+','+((numpicks+1)*i)+'" /></symbol>'); // define one "end"
 	// draw the specified number of ends
 	for (var end = 0; end < numends; end++) {
-	  drawPart('<use x="'+end*i+'"  y="0" xlink:href="#oneend" />');
+	  drawPart('<use x="'+(end*i)+'" y="0" xlink:href="#oneend" />');
 	}
 	// draw weft
 	setDelayInterval(100);
@@ -148,6 +147,12 @@
       }
       function resetDrawing() {
 	delay = 0;
+	var width = numends * scale * 2.5;
+	var height = numpicks * scale * 2.5;
+	document.getElementById('svgarea').innerHTML =
+	  '<svg id="loom" viewBox="-'+scale+' -'+scale+' '+width+' '+height+'" width="'+width+'" height="'+height+'">' +
+	  'Sorry, your browser does not support inline SVG.' +
+	  '</svg>';
 	clearPath();
       }
       function clearPath() {
