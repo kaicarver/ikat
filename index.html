@@ -110,9 +110,13 @@
 	var yy = y+(pick*i);
 	var pattern = [1,0,1,0];
 	if (pick%2 == 1) {
-	  drawPart(drawPath('weft paint', 'M'+(i+width)+','+(yy)+' '+i+','+(yy)+' ')); // pick crosses loom from right to left
+	  // pick crosses loom from right to left
+	  drawPart(drawPath('weft paint', 'M'+(i+width)+','+(yy)+' '+(i+width/2)+','+(yy)+' '));
+	  drawPart(drawPath('weft', 'M'+(i+width/2)+','+(yy)+' '+i+','+(yy)+' '));
 	} else {
-	  drawPart(drawPath('weft', 'M '+i+','+(yy)+' '+(i+width)+','+(yy)+' ')); // pick crosses loom from left to right
+	  // pick crosses loom from left to right
+	  drawPart(drawPath('weft paint', 'M '+i+','+(yy)+' '+(i+width/2)+','+(yy)+' '));
+	  drawPart(drawPath('weft', 'M '+(i+width/2)+','+(yy)+' '+(i+width)+','+(yy)+' '));
 	}
       }
       function drawCurve(pick) {
