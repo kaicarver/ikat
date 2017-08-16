@@ -8,22 +8,12 @@
       .warp, .weft { fill:none; stroke-width: 10; }
       .weft { stroke: red;  color: red; opacity: 0.5; }
       .warp { stroke: gray; color: gray; opacity: 0.5; }
-      #weftdemo {
-	  stroke-dasharray: 90;
-	  stroke-dashoffset: 100;
-	  animation: dash 4s linear forwards;
-      }
-      @keyframes dash {
-	  to {
-	      stroke-dashoffset: 0;
-	  }
-      }
     </style>
   </head>
   <body>
     <p><span class="warp">Warp</span> and <span class="weft">weft</span> on a loom, static and dynamic SVG drawings, with CSS and JavaScript animation:</p>
     <div>
-    <svg height="250" width="300">
+    <svg height="150" width="200">
       <symbol id="warp1">
 	<polyline class="warp" points="30,10 30,200" />
       </symbol>
@@ -45,7 +35,7 @@
     </svg>
     </div>
     <div>
-      <svg id="loom" height="250" width="300">
+      <svg id="loom" height="300" width="350">
       Sorry, your browser does not support inline SVG.
       </svg>
     </div>
@@ -72,39 +62,37 @@
       function autorun() {
 	drawLoom();
       }
+      // basic parameters determining size of warp and weft on loom
+      var numbackandforths = 5; // weft starts with shuttle from left to right, than x back and forth trips
+      var numends = 11; // number of "ends", i.e. vertical lengths of yarn, composing the warp
+      var scale = 12; // basic unit of everything
+      // calculated parameters
+      var numpicks = 1 + 2 * numbackandforths; // total number of "picks", i.e. horizontal lengths of yarn composing the weft
+      var i = 2 * scale; // basic interval: space between each vertical warp "end", and each horizontal weft "pick"
+      var width = numends * i; // width of the "ends", i.e. straight lines between turns
+      var y = i; // vertical position of start of weft
       function drawLoom(drawDelayed) {
 	// drawDelayed parameter implements a Javascript animation when true
-	// basic parameters determining size of warp and weft on loom
-	var numbackandforths = 4; // weft starts with shuttle from left to right, than x back and forth trips
-	var numends = 8; // number of "ends", i.e. vertical lengths of yarn, composing the warp
-	var scale = 10; // basic unit of everything
-	// calculated parameters
-	var numpicks = 1 + 2 * numbackandforths; // total number of "picks", i.e. horizontal lengths of yarn composing the weft
-	var i = 2 * scale; // basic interval: space between each vertical warp "end", and each horizontal weft "pick"
-	var width = numends * i; // width of the "ends", i.e. straight lines between turns
-	var y = i; // vertical position of start of weft
 	// draw
 	// TODO: because can't specify z-order in SVG, have to draw warp and weft intertwined, not one after the other
 	// draw warp
 	setDrawDelayed(drawDelayed);
 	setDelayInterval(50);
-	drawPart('<symbol id="oneend"><polyline class="warp" points="'+(1.5*i)+','+(0.5*i)+' '+(1.5*i)+','+((numpicks+2)*i)+'" /></symbol>'); // define one "end"
+	drawPart('<symbol id="oneend"><polyline class="warp" points="'+(1.5*i)+','+(0.5*i)+' '+(1.5*i)+','+((numpicks+1)*i)+'" /></symbol>'); // define one "end"
 	// draw the specified number of ends
 	for (var end = 0; end < numends; end++) {
 	  drawPart('<use x="'+end*i+'"  y="0" xlink:href="#oneend" />');
 	}
 	// draw weft
 	setDelayInterval(100);
-	drawPart(drawPath('M'+(i/4)+','+y+' '+(i+width)+','+y+' ')); // first pick starts straight, crosses loom from left to right
-	for (var pick = 1; pick < numpicks; pick += 2) {
-	  // 2 picks at a time, back and forth
-	  drawPart(drawPath('M'+(i+width)+','+y+' A'+(i/2)+','+(i/2)+' 0 1,1 '+(i+width)+','+(y+i)+' ')); // right side half-circle
-	  drawPart(drawPath('M'+(i+width)+','+(y+i)+' '+i+','+(y+i)+' ')); // pick crosses loom from right to left
-	  drawPart(drawPath('M '+i+','+(y+i)+' A'+(i/2)+','+(i/2)+' 0 1,0  '+i+','+(y+2*i)+' ')); // left side half-circle
-	  drawPart(drawPath('M '+i+','+(y+2*i)+' '+(i+width)+','+(y+2*i)+' ')); // pick crosses loom from left to right
-	  y += 2*i;
+	drawEnd(0);
+	for (var pick = 0; pick < numpicks; pick++) {
+	  drawPick(pick)
+	  if (pick < numpicks - 1) {
+	    drawCurve(pick);
+	  }
 	}
-	drawPart(drawPath('M '+(i+width)+','+y+' '+(i+width+3/4*i)+','+y+' ')); // last pick ends straight
+	drawEnd(pick-1);
 	if (!drawDelayed) {
 	  drawBuffer();
 	}
@@ -129,6 +117,30 @@
       }
       function setDelayInterval(millisec) {
 	delayInterval = millisec;
+      }
+      function drawEnd(pick) {
+	var yy = y+(pick*i);
+	if (pick == 0 || pick%2 == 1) {
+	  drawPart(drawPath('M'+(i/4)+','+yy+' '+(i)+','+yy+' ')); // first pick starts straight, crosses loom from left to right
+	} else {
+	  drawPart(drawPath('M '+(i+width)+','+(yy)+' '+(i+width+3/4*i)+','+(yy)+' ')); // last pick ends straight
+	}
+      }
+      function drawPick(pick) {
+	var yy = y+(pick*i);
+	if (pick%2 == 1) {
+	  drawPart(drawPath('M'+(i+width)+','+(yy)+' '+i+','+(yy)+' ')); // pick crosses loom from right to left
+	} else {
+	  drawPart(drawPath('M '+i+','+(yy)+' '+(i+width)+','+(yy)+' ')); // pick crosses loom from left to right
+	}
+      }
+      function drawCurve(pick) {
+	var yy = y+(pick*i);
+	if (pick%2 == 0) {	
+	  drawPart(drawPath('M'+(i+width)+','+(yy)+' A'+(i/2)+','+(i/2)+' 0 1,1 '+(i+width)+','+(yy+i)+' ')); // right side half-circle
+	} else {
+	  drawPart(drawPath('M '+i+','+(yy)+' A'+(i/2)+','+(i/2)+' 0 1,0  '+i+','+(yy+i)+' ')); // left side half-circle
+	}
       }
       function drawPath(description) {
 	var p = '';
