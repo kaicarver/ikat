@@ -7,6 +7,7 @@
       div { display: inline; }
       .warp, .weft { fill:none; stroke-width: 10; }
       .weft { stroke: red;  color: red; opacity: 0.5; }
+      .paint { stroke: green; }
       .warp { stroke: gray; color: gray; opacity: 0.5; }
       svg { border: solid lightgray 1px; }
     </style>
@@ -50,7 +51,6 @@
       }
       function drawLoom(drawDelayed) {
 	// drawDelayed parameter implements a Javascript animation when true
-	// draw
 	// TODO: because can't specify z-order in SVG, have to draw warp and weft intertwined, not one after the other
 	// draw warp
 	setDrawDelayed(drawDelayed);
@@ -64,7 +64,7 @@
 	setDelayInterval(100);
 	drawEnd(0);
 	for (var pick = 0; pick < numpicks; pick++) {
-	  drawPick(pick)
+	  drawPick(pick);
 	  if (pick < numpicks - 1) {
 	    drawCurve(pick);
 	  }
@@ -98,30 +98,34 @@
       function drawEnd(pick) {
 	var yy = y+(pick*i);
 	if (pick == 0 || pick%2 == 1) {
-	  drawPart(drawPath('M'+(i/4)+','+yy+' '+(i)+','+yy+' ')); // first pick starts straight, crosses loom from left to right
+	  // first pick starts straight from left, goes towards right
+	  // last pick is the same if an odd-numbered pick (should be from right to left, but whatever)
+	  drawPart(drawPath('weft', 'M'+(i/4)+','+yy+' '+(i)+','+yy+' '));
 	} else {
-	  drawPart(drawPath('M '+(i+width)+','+(yy)+' '+(i+width+3/4*i)+','+(yy)+' ')); // last pick ends straight
+	  // last pick ends straight at right end
+	  drawPart(drawPath('weft', 'M '+(i+width)+','+(yy)+' '+(i+width+3/4*i)+','+(yy)+' '));
 	}
       }
       function drawPick(pick) {
 	var yy = y+(pick*i);
+	var pattern = [1,0,1,0];
 	if (pick%2 == 1) {
-	  drawPart(drawPath('M'+(i+width)+','+(yy)+' '+i+','+(yy)+' ')); // pick crosses loom from right to left
+	  drawPart(drawPath('weft paint', 'M'+(i+width)+','+(yy)+' '+i+','+(yy)+' ')); // pick crosses loom from right to left
 	} else {
-	  drawPart(drawPath('M '+i+','+(yy)+' '+(i+width)+','+(yy)+' ')); // pick crosses loom from left to right
+	  drawPart(drawPath('weft', 'M '+i+','+(yy)+' '+(i+width)+','+(yy)+' ')); // pick crosses loom from left to right
 	}
       }
       function drawCurve(pick) {
 	var yy = y+(pick*i);
 	if (pick%2 == 0) {	
-	  drawPart(drawPath('M'+(i+width)+','+(yy)+' A'+(i/2)+','+(i/2)+' 0 1,1 '+(i+width)+','+(yy+i)+' ')); // right side half-circle
+	  drawPart(drawPath('weft', 'M'+(i+width)+','+(yy)+' A'+(i/2)+','+(i/2)+' 0 1,1 '+(i+width)+','+(yy+i)+' ')); // right side half-circle
 	} else {
-	  drawPart(drawPath('M '+i+','+(yy)+' A'+(i/2)+','+(i/2)+' 0 1,0  '+i+','+(yy+i)+' ')); // left side half-circle
+	  drawPart(drawPath('weft', 'M '+i+','+(yy)+' A'+(i/2)+','+(i/2)+' 0 1,0  '+i+','+(yy+i)+' ')); // left side half-circle
 	}
       }
-      function drawPath(description) {
+      function drawPath(classname, description) {
 	var p = '';
-	p += '<path class="weft" d="';
+	p += '<path class="'+classname+'" d="';
 	p += description;
 	p += '" />';
 	return p;
