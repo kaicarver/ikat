@@ -7,32 +7,40 @@
       div { display: inline; }
       .warp, .weft { fill:none; stroke-width: 10; }
       .weft { stroke: red;  color: red; opacity: 0.5; }
-      .paint { stroke: green; }
+      .paint { stroke: green; color: green; }
       .warp { stroke: gray; color: gray; opacity: 0.5; }
       svg { border: solid lightgray 1px; }
     </style>
   </head>
   <body>
-    <p><span class="warp">Warp</span> and <span class="weft">weft</span> on a loom, dynamic SVG drawing, with JavaScript animation:</p>
+    <p>
+      <span class="warp">Warp</span> and
+      <span class="weft">w</span><span class="weft paint">e</span><span class="weft">f</span><span class="weft paint">t</span>
+	    on a loom:
+    </p>
     <div id="svgarea">
     </div>
     <p>
       <button onclick="resetDrawing(); drawLoom(true)">Animate</button>
     </p>
     <p>
+      (dynamic SVG drawing, with JavaScript animation)<br>
+    </p>
+    <p>
       <pre>
-	TODO:
-	- show a pattern on the weft
-	- show weft/warp intersections with weft alternately on top or under warp
-	- way to input the various parameters:
-	    pattern, size of warp, length of weft, visualization details
-	- way to export weft pattern in the format needed by the yarn-dyeing machine...
+  TODO:
+  - show a pattern on the weft
+  - from an X × Y pattern matrix, map to back-and-forth weft of Y1 picks of X1 length
+  - way to input the various parameters:
+      pattern, size of warp, length of weft, visualization details
+  - way to export weft pattern in the format needed by the yarn-dyeing machine
+  - show weft/warp intersections with weft alternately on top or under warp
       </pre>
     </p>
     <p>
       More info: <a href="https://en.wikipedia.org/wiki/Warp_and_weft">warp and weft</a>,
-      <a href="https://en.wikipedia.org/wiki/Ikat">ikat weaving</a>.
-      <a href="https://github.com/kaicarver/ikat">Source code</a>.
+      <a href="https://en.wikipedia.org/wiki/Ikat">ikat weaving</a>,
+      <a href="https://github.com/kaicarver/ikat">source code on Github</a>.
     </p>
     
   <script type="text/javascript">
