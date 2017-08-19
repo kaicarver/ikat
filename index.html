@@ -9,17 +9,25 @@
       .weft { stroke: red;  color: red; opacity: 0.5; }
       .paint { stroke: green; color: green; }
       .warp { stroke: gray; color: gray; opacity: 0.5; }
-      svg { border: solid lightgray 1px; }
+      svg { border: 1px solid lightgray; }
+      canvas#pattern { border: 1px solid lightgray; }
     </style>
   </head>
   <body>
+    <p>
+      Example pattern:<br>
+      (TODO: import any image, scale,
+      <a href="https://stackoverflow.com/questions/19129644/how-to-pixelate-an-image-with-canvas-and-javascript">pixelate</a>, and
+      <a href="https://stackoverflow.com/questions/6205955/algorithm-for-color-quantization-reduced-image-color-palette-in-javascript">reduce color palette</a> to
+      produce a pattern)
+    </p>
+    <div id="patternarea"></div>
     <p>
       <span class="warp">Warp</span> and
       <span class="weft">w</span><span class="weft paint">e</span><span class="weft">f</span><span class="weft paint">t</span>
 	    on a loom:
     </p>
-    <div id="svgarea">
-    </div>
+    <div id="svgarea"></div>
     <p>
       <button onclick="resetDrawing(); drawLoom(true)">Animate</button>
     </p>
@@ -35,7 +43,7 @@
       pattern, size of warp, length of weft, visualization details
   - way to export weft pattern in the format needed by the yarn-dyeing machine
   - show weft/warp intersections with weft alternately on top or under warp
-      </pre>
+      </pre> 
     </p>
     <p>
       More info: <a href="https://en.wikipedia.org/wiki/Warp_and_weft">warp and weft</a>,
@@ -43,7 +51,7 @@
       <a href="https://github.com/kaicarver/ikat">source code on Github</a>.
     </p>
     
-  <script type="text/javascript">
+    <script type="text/javascript">
       // basic parameters determining size of warp and weft on loom
       var numbackandforths = 5; // weft starts with shuttle from left to right, than x back and forth trips
       var numends = 11; // number of "ends", i.e. vertical lengths of yarn, composing the warp
@@ -55,7 +63,49 @@
       var y = i; // vertical position of start of weft
       function autorun() {
 	resetDrawing();
+	drawPattern();
 	drawLoom();
+      }
+      function drawPattern() {
+	// pattern
+	var pattern = [
+	  [0,0,0,0,0,0,0,0,0],
+	  [0,1,0,0,0,1,0,0,0],
+	  [1,1,1,0,1,1,1,0,0],
+	  [1,2,1,1,1,2,1,1,0],
+	  [2,2,2,1,2,2,2,1,1],
+	  [2,1,2,2,2,1,2,2,1],
+	  [1,1,1,2,1,1,1,2,2],
+	  [1,0,1,1,1,0,1,1,2],
+	  [0,0,0,1,0,0,0,1,1],
+	  [0,0,0,0,0,0,0,0,1],
+	  [0,0,0,0,0,0,0,0,0],
+	];
+	var w = pattern[0].length;
+	var h = pattern.length;
+	var scale = 20;
+	console.log(pattern, pattern[0].length + " x " + pattern.length); //JSON.stringify(pattern).replace(/\],\[/g, "],\n[")
+	document.getElementById('patternarea').innerHTML =
+	  '<canvas id="pattern" width="'+w*scale+'" height="'+h*scale+'"></canvas>' +
+	  '<br>' + w + ' x ' + h + ' pixels';
+	var canvas = document.getElementById('pattern');
+        if (canvas.getContext) {
+	  var ctx = canvas.getContext('2d');
+	  ctx.fillStyle = 'rgb(200, 0, 0)';
+	  for (var y = 0; y < h; y++) {
+	    for (var x = 0; x < w; x++) {
+	      var val = pattern[y][x];
+	      if (val != 0) {
+		if (val == 1) {
+		  ctx.fillStyle = 'rgb(200, 0, 0)';
+		} else if (val == 2) {
+		  ctx.fillStyle = 'rgb(0, 0, 200)';
+		}
+		ctx.fillRect(scale*x, scale*y, scale, scale);
+	      }
+	    }
+	  }
+        }
       }
       function drawLoom(drawDelayed) {
 	// drawDelayed parameter implements a Javascript animation when true
@@ -116,7 +166,6 @@
       }
       function drawPick(pick) {
 	var yy = y+(pick*i);
-	var pattern = [1,0,1,0];
 	if (pick%2 == 1) {
 	  // pick crosses loom from right to left
 	  drawPart(drawPath('weft paint', 'M'+(i+width)+','+(yy)+' '+(i+width/2)+','+(yy)+' '));
@@ -168,7 +217,9 @@
 	document.getElementById('svgarea').innerHTML =
 	  '<svg id="loom" viewBox="-'+scale+' -'+scale+' '+width+' '+height+'" width="'+width+'" height="'+height+'">' +
 	  'Sorry, your browser does not support inline SVG.' +
-	  '</svg>';
+	  '</svg>' +
+	  '<br>' + numends + ' ends x ' + numpicks + ' picks';
+
 	clearPath();
       }
       function clearPath() {
