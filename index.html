@@ -5,12 +5,14 @@
     <title>Ikat Visualization</title>
     <style type="text/css">
       div { display: inline; }
-      .warp, .weft { fill:none; stroke-width: 10; }
-      .weft { stroke: red;  color: red; opacity: 0.5; }
-      .paint { stroke: green; color: green; }
-      .warp { stroke: gray; color: gray; opacity: 0.5; }
+      .warp, .weft { fill:none; stroke-width: 10; opacity: 0.5; }
+      .weft { stroke: yellow; background-color: yellow; }
+      .paint1 { stroke: green; background-color: green; }
+      .paint2 { stroke: blue; background-color: blue; }
+      .warp { stroke: gray; background-color: gray; }
       svg { border: 1px solid lightgray; }
-      canvas#pattern, canvas#pattern2 { border: 1px solid lightgray; }
+      canvas#pattern, canvas#pattern2 { border: 1px solid lightgray; background-color: yellow; }
+      canvas#pattern { margin-left: 50px; }
     </style>
   </head>
   <body>
@@ -23,8 +25,8 @@
     </p>
     <div id="patternarea"></div>
     <p>
-      <span class="warp">Warp</span> and
-      <span class="weft">w</span><span class="weft paint">e</span><span class="weft">f</span><span class="weft paint">t</span>
+      Warp <span class="warp">&nbsp;&nbsp;&nbsp;</span> and
+      weft <span class="weft">&nbsp;&nbsp;&nbsp;</span><span class="weft paint1">&nbsp;&nbsp;&nbsp;</span><span class="weft">&nbsp;&nbsp;&nbsp;</span><span class="weft paint2">&nbsp;&nbsp;&nbsp;</span><span class="weft">&nbsp;&nbsp;&nbsp;</span>
 	    on a loom:
     </p>
     <div id="svgarea"></div>
@@ -101,15 +103,14 @@
 	var canvas = document.getElementById('pattern');
         if (canvas.getContext) {
 	  var ctx = canvas.getContext('2d');
-	  ctx.fillStyle = 'rgb(200, 0, 0)';
 	  for (var y = 0; y < h; y++) {
 	    for (var x = 0; x < w; x++) {
 	      var val = pattern[y][x];
 	      if (val != 0) {
 		if (val == 1) {
-		  ctx.fillStyle = 'rgb(200, 0, 0)';
+		  ctx.fillStyle = 'rgb(0, 128, 0)'; // CSS green
 		} else if (val == 2) {
-		  ctx.fillStyle = 'rgb(0, 0, 200)';
+		  ctx.fillStyle = 'rgb(0, 0, 255)'; // CSS blue
 		}
 		ctx.fillRect(scale2*x, scale2*y, scale2, scale2);
 	      }
@@ -194,11 +195,11 @@
 	var yy = y+(pick*i);
 	if (pick%2 == 1) {
 	  // pick crosses loom from right to left
-	  drawPart(drawPath('weft paint', 'M'+(i+width)+','+(yy)+' '+(i+width/2)+','+(yy)+' '));
+	  drawPart(drawPath('weft paint1', 'M'+(i+width)+','+(yy)+' '+(i+width/2)+','+(yy)+' '));
 	  drawPart(drawPath('weft', 'M'+(i+width/2)+','+(yy)+' '+i+','+(yy)+' '));
 	} else {
 	  // pick crosses loom from left to right
-	  drawPart(drawPath('weft paint', 'M '+i+','+(yy)+' '+(i+width/2)+','+(yy)+' '));
+	  drawPart(drawPath('weft paint2', 'M '+i+','+(yy)+' '+(i+width/2)+','+(yy)+' '));
 	  drawPart(drawPath('weft', 'M '+(i+width/2)+','+(yy)+' '+(i+width)+','+(yy)+' '));
 	}
       }
