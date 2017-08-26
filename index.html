@@ -7,8 +7,8 @@
       div { display: inline; }
       .warp, .weft { fill:none; stroke-width: 10; opacity: 0.5; }
       .weft { stroke: yellow; background-color: yellow; }
-      .paint1 { stroke: green; background-color: green; }
-      .paint2 { stroke: blue; background-color: blue; }
+      .paint1 { stroke: blue; background-color: blue; }
+      .paint2 { stroke: red; background-color: red; }
       .warp { stroke: gray; background-color: gray; }
       svg { border: 1px solid lightgray; }
       canvas#pattern, canvas#pattern2 { border: 1px solid lightgray; }
@@ -105,16 +105,16 @@
 	var canvas = document.getElementById('pattern');
 	var ctx = canvas.getContext('2d');
 	// first draw minimized version of image
-	ctx2.fillStyle = 'rgb(256, 256, 0)'; // CSS green
+	ctx2.fillStyle = 'rgb(256, 256, 0)'; // CSS yellow
 	ctx2.fillRect(0, 0, w, h);
 	for (var y = 0; y < h; y++) {
 	  for (var x = 0; x < w; x++) {
 	    var val = pattern[y][x];
 	    if (val != 0) {
 	      if (val == 1) {
-		ctx2.fillStyle = 'rgb(0, 128, 0)'; // CSS green
+		ctx2.fillStyle = 'rgb(0, 0, 256)'; // CSS blue
 	      } else if (val == 2) {
-		ctx2.fillStyle = 'rgb(0, 0, 255)'; // CSS blue
+		ctx2.fillStyle = 'rgb(255, 0, 0)'; // CSS red
 	      }
 	      ctx2.fillRect(scale2*x, scale2*y, scale2, scale2);
 	    }
@@ -141,25 +141,28 @@
       }
       function drawLoom(drawDelayed) {
 	// drawDelayed parameter implements a Javascript animation when true
+	setDrawDelayed(drawDelayed);
 	// TODO: because can't specify z-order in SVG, have to draw warp and weft intertwined, not one after the other
 	// draw warp
-	setDrawDelayed(drawDelayed);
 	setDelayInterval(50);
-	drawPart('<symbol id="oneend"><polyline class="warp" points="'+(1.5*i)+','+(0.5*i)+' '+(1.5*i)+','+((numpicks+1)*i)+'" /></symbol>'); // define one "end"
+	// define one "end" (all ends are identical, at different positions)
+	drawEndSymbol();
 	// draw the specified number of ends
 	for (var end = 0; end < numends; end++) {
-	  drawPart('<use x="'+(end*i)+'" y="0" xlink:href="#oneend" />');
+	  drawEnd(end);
 	}
 	// draw weft
 	setDelayInterval(100);
-	drawEnd(0);
+	// draw the start of the weft yarn
+	drawTail(0);
 	for (var pick = 0; pick < numpicks; pick++) {
 	  drawPick(pick);
 	  if (pick < numpicks - 1) {
 	    drawCurve(pick);
 	  }
 	}
-	drawEnd(pick-1);
+	// draw the end of the weft yarn
+	drawTail(pick-1);
 	if (!drawDelayed) {
 	  drawBuffer();
 	}
@@ -185,15 +188,21 @@
       function setDelayInterval(millisec) {
 	delayInterval = millisec;
       }
-      function drawEnd(pick) {
+      function drawEndSymbol() {
+	drawPart('<symbol id="oneend"><polyline class="warp" points="'+(1.5*i)+','+(0.5*i)+' '+(1.5*i)+','+((numpicks+1)*i)+'" /></symbol>');
+      }
+      function drawEnd(end) {
+	drawPart('<use x="'+(end*i)+'" y="0" xlink:href="#oneend" />');
+      }
+      function drawTail(pick) {
 	var yy = y+(pick*i);
 	if (pick == 0 || pick%2 == 1) {
 	  // first pick starts straight from left, goes towards right
 	  // last pick is the same if an odd-numbered pick (should be from right to left, but whatever)
-	  drawPart(drawPath('weft', 'M'+(i/4)+','+yy+' '+(i)+','+yy+' '));
+	  drawPart(drawPath('weft', 'M'+(i/4-i/2)+','+yy+' '+(i)+','+yy+' '));
 	} else {
 	  // last pick ends straight at right end
-	  drawPart(drawPath('weft', 'M '+(i+width)+','+(yy)+' '+(i+width+3/4*i)+','+(yy)+' '));
+	  drawPart(drawPath('weft', 'M '+(i+width)+','+(yy)+' '+(i+width+3/4*i+i/2)+','+(yy)+' '));
 	}
       }
       function drawPick(pick) {
