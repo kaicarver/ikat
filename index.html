@@ -62,7 +62,7 @@
     <script type="text/javascript">
       // basic parameters determining size of warp and weft on loom
       var numbackandforths = 5; // weft starts with shuttle from left to right, than x back and forth trips
-      var numends = 11; // number of "ends", i.e. vertical lengths of yarn, composing the warp
+      var numends = 9; // number of "ends", i.e. vertical lengths of yarn, composing the warp
       var scale = 12; // basic unit of everything
       // calculated parameters
       var numpicks = 1 + 2 * numbackandforths; // total number of "picks", i.e. horizontal lengths of yarn composing the weft
@@ -238,8 +238,8 @@
       }
       function resetDrawing() {
 	delay = 0;
-	var width = numends * scale * 2.5;
-	var height = numpicks * scale * 2.5;
+	var width = (numends + 3) * scale * 2;
+	var height = (numpicks + 2.5) * scale * 2;
 	document.getElementById('svgarea').innerHTML =
 	  '<svg id="loom" viewBox="-'+scale+' -'+scale+' '+width+' '+height+'" width="'+width+'" height="'+height+'">' +
 	  'Sorry, your browser does not support inline SVG.' +
