@@ -13,15 +13,17 @@
       svg { border: 1px solid lightgray; }
       canvas#pattern, canvas#pattern2 { border: 1px solid lightgray; }
       canvas#pattern { margin-left: 40px; }
+      .preformatted {
+	  font-family: monospace;
+	  white-space: pre;
+      }
+      h1 { font-size: 1.5em; }
     </style>
   </head>
   <body>
+    <h1>Ikat Visualization</h1>
     <p>
-      Example pattern:<br>
-      (TODO: import any image, scale,
-      <a href="https://stackoverflow.com/questions/19129644/how-to-pixelate-an-image-with-canvas-and-javascript">pixelate</a>, and
-      <a href="https://stackoverflow.com/questions/6205955/algorithm-for-color-quantization-reduced-image-color-palette-in-javascript">reduce color palette</a> to
-      produce a pattern)
+      Example pattern:
     </p>
     <div id="patternarea"></div>
     <p>
@@ -36,16 +38,14 @@
     <p>
       (dynamic SVG drawing, with JavaScript animation)<br>
     </p>
-    <p>
-      <pre>
-  TODO:
-  - show a pattern on the weft
+    <p class="preformatted">TODO:
+  - show correct pattern on the weft
   - from an X × Y pattern matrix, map to back-and-forth weft of Y1 picks of X1 length
   - way to input the various parameters:
       pattern, size of warp, length of weft, visualization details
   - way to export weft pattern in the format needed by the yarn-dyeing machine
   - show weft/warp intersections with weft alternately on top or under warp
-      </pre> 
+  - import any image, scale, <a href="https://stackoverflow.com/questions/19129644/how-to-pixelate-an-image-with-canvas-and-javascript">pixelate</a>, and <a href="https://stackoverflow.com/questions/6205955/algorithm-for-color-quantization-reduced-image-color-palette-in-javascript">reduce color palette</a> to produce a pattern
     </p>
     <p>
       More info: <a href="https://en.wikipedia.org/wiki/Warp_and_weft">warp and weft</a>,
