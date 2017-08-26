@@ -11,8 +11,8 @@
       .paint2 { stroke: blue; background-color: blue; }
       .warp { stroke: gray; background-color: gray; }
       svg { border: 1px solid lightgray; }
-      canvas#pattern, canvas#pattern2 { border: 1px solid lightgray; background-color: yellow; }
-      canvas#pattern { margin-left: 50px; }
+      canvas#pattern, canvas#pattern2 { border: 1px solid lightgray; }
+      canvas#pattern { margin-left: 40px; }
     </style>
   </head>
   <body>
@@ -100,40 +100,41 @@
 	  '<canvas id="pattern2" width="'+w+'" height="'+h+'"></canvas>' +
 	  '<canvas id="pattern" width="'+w*scale+'" height="'+h*scale+'"></canvas>' +
 	  '<br>' + w + ' x ' + h + ' pixels';
-	// first draw minimized version of image
+	var canvas2 = document.getElementById('pattern2');
+	var ctx2 = canvas2.getContext('2d');
 	var canvas = document.getElementById('pattern');
-        if (canvas.getContext) {
-	  var ctx = canvas.getContext('2d');
-	  for (var y = 0; y < h; y++) {
-	    for (var x = 0; x < w; x++) {
-	      var val = pattern[y][x];
-	      if (val != 0) {
-		if (val == 1) {
-		  ctx.fillStyle = 'rgb(0, 128, 0)'; // CSS green
-		} else if (val == 2) {
-		  ctx.fillStyle = 'rgb(0, 0, 255)'; // CSS blue
-		}
-		ctx.fillRect(scale2*x, scale2*y, scale2, scale2);
+	var ctx = canvas.getContext('2d');
+	// first draw minimized version of image
+	ctx2.fillStyle = 'rgb(256, 256, 0)'; // CSS green
+	ctx2.fillRect(0, 0, w, h);
+	for (var y = 0; y < h; y++) {
+	  for (var x = 0; x < w; x++) {
+	    var val = pattern[y][x];
+	    if (val != 0) {
+	      if (val == 1) {
+		ctx2.fillStyle = 'rgb(0, 128, 0)'; // CSS green
+	      } else if (val == 2) {
+		ctx2.fillStyle = 'rgb(0, 0, 255)'; // CSS blue
 	      }
+	      ctx2.fillRect(scale2*x, scale2*y, scale2, scale2);
 	    }
 	  }
 	}
-	// copy the minimized version
-	var canvas2 = document.getElementById('pattern2');
-	var ctx2 = canvas2.getContext('2d');
-	ctx2.drawImage(canvas, 0, 0);
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	// debug: read the minimized image
 	for (var y = 0; y < h; y++) {
 	  for (var x = 0; x < w; x++) {
-	    var pixel = ctx.getImageData(x, y, 1, 1);
+	    var pixel = ctx2.getImageData(x, y, 1, 1);
 	    console.log(x, y, pixel.data);
 	  }
 	}
-	// make a copy scaling up the tiny version to a viewable size
+	// make a copy scaling up the minimized version to a viewable size
 	// turn off image aliasing, otherwise the scaling result is all blurry
 	ctx.imageSmoothingEnabled = false;
 	// enlarge the minimized image to full size    
 	ctx.drawImage(canvas2, 0, 0, w, h, 0, 0, canvas.width, canvas.height);
+	// debug: save canvas as an image
+	var img = canvas.toDataURL("image/png");
+	document.write('<img src="'+img+'"/>');
       }
       function normalizeColor(data) {
 	//if (data[0] == 0 && data[1] == 0 
