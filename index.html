@@ -97,9 +97,10 @@
 	var scale2 = 1;
 	console.log(pattern, pattern[0].length + " x " + pattern.length); //JSON.stringify(pattern).replace(/\],\[/g, "],\n[")
 	document.getElementById('patternarea').innerHTML =
-	  '<canvas id="pattern" width="'+w*scale+'" height="'+h*scale+'"></canvas>' +
 	  '<canvas id="pattern2" width="'+w+'" height="'+h+'"></canvas>' +
+	  '<canvas id="pattern" width="'+w*scale+'" height="'+h*scale+'"></canvas>' +
 	  '<br>' + w + ' x ' + h + ' pixels';
+	// first draw minimized version of image
 	var canvas = document.getElementById('pattern');
         if (canvas.getContext) {
 	  var ctx = canvas.getContext('2d');
@@ -117,19 +118,22 @@
 	    }
 	  }
 	}
+	// copy the minimized version
 	var canvas2 = document.getElementById('pattern2');
 	var ctx2 = canvas2.getContext('2d');
 	ctx2.drawImage(canvas, 0, 0);
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	for (var y = 0; y < h; y++) {
 	  for (var x = 0; x < w; x++) {
 	    var pixel = ctx.getImageData(x, y, 1, 1);
 	    console.log(x, y, pixel.data);
 	  }
 	}
-	// turn off image aliasing
+	// make a copy scaling up the tiny version to a viewable size
+	// turn off image aliasing, otherwise the scaling result is all blurry
 	ctx.imageSmoothingEnabled = false;
 	// enlarge the minimized image to full size    
-	ctx.drawImage(canvas, 0, 0, w, h, 0, 0, canvas.width, canvas.height);
+	ctx.drawImage(canvas2, 0, 0, w, h, 0, 0, canvas.width, canvas.height);
       }
       function normalizeColor(data) {
 	//if (data[0] == 0 && data[1] == 0 
