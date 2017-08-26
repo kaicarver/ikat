@@ -10,7 +10,7 @@
       .paint { stroke: green; color: green; }
       .warp { stroke: gray; color: gray; opacity: 0.5; }
       svg { border: 1px solid lightgray; }
-      canvas#pattern { border: 1px solid lightgray; }
+      canvas#pattern, canvas#pattern2 { border: 1px solid lightgray; }
     </style>
   </head>
   <body>
@@ -48,7 +48,15 @@
     <p>
       More info: <a href="https://en.wikipedia.org/wiki/Warp_and_weft">warp and weft</a>,
       <a href="https://en.wikipedia.org/wiki/Ikat">ikat weaving</a>,
-      <a href="https://github.com/kaicarver/ikat">source code on Github</a>.
+      real-life examples:
+      <a href="http://www.arumfellow.com/textiles/solola-ikat-fabric.html">Sololá</a>,
+      <a href="http://www.stony-hill-madison.com/solola-old-tzute-with-warp-ikat/">Sololá (warp)</a>,
+      <a href="https://www.etsy.com/listing/226266379/ikat-handmade-fabric-59-from-guatemala">more Guatemala</a>,
+      <a href="http://blog.apliiq.com/site/ikat/">weft ikat samples</a>,
+      <a href="http://www.andreaschewedesign.com/blog/weaving-ikat">Bali</a>.
+    </p>
+    <p>
+      <a href="https://github.com/kaicarver/ikat">Source code on Github</a>.
     </p>
     
     <script type="text/javascript">
@@ -84,9 +92,11 @@
 	var w = pattern[0].length;
 	var h = pattern.length;
 	var scale = 20;
+	var scale2 = 1;
 	console.log(pattern, pattern[0].length + " x " + pattern.length); //JSON.stringify(pattern).replace(/\],\[/g, "],\n[")
 	document.getElementById('patternarea').innerHTML =
 	  '<canvas id="pattern" width="'+w*scale+'" height="'+h*scale+'"></canvas>' +
+	  '<canvas id="pattern2" width="'+w+'" height="'+h+'"></canvas>' +
 	  '<br>' + w + ' x ' + h + ' pixels';
 	var canvas = document.getElementById('pattern');
         if (canvas.getContext) {
@@ -101,11 +111,27 @@
 		} else if (val == 2) {
 		  ctx.fillStyle = 'rgb(0, 0, 200)';
 		}
-		ctx.fillRect(scale*x, scale*y, scale, scale);
+		ctx.fillRect(scale2*x, scale2*y, scale2, scale2);
 	      }
 	    }
 	  }
-        }
+	}
+	var canvas2 = document.getElementById('pattern2');
+	var ctx2 = canvas2.getContext('2d');
+	ctx2.drawImage(canvas, 0, 0);
+	for (var y = 0; y < h; y++) {
+	  for (var x = 0; x < w; x++) {
+	    var pixel = ctx.getImageData(x, y, 1, 1);
+	    console.log(x, y, pixel.data);
+	  }
+	}
+	// turn off image aliasing
+	ctx.imageSmoothingEnabled = false;
+	// enlarge the minimized image to full size    
+	ctx.drawImage(canvas, 0, 0, w, h, 0, 0, canvas.width, canvas.height);
+      }
+      function normalizeColor(data) {
+	//if (data[0] == 0 && data[1] == 0 
       }
       function drawLoom(drawDelayed) {
 	// drawDelayed parameter implements a Javascript animation when true
