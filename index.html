@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Ikat Visualization</title>
     <style type="text/css">
-      div { display: inline; }
+      div { }
       .warp, .weft { fill:none; stroke-width: 10; opacity: 0.5; }
       .weft { stroke: yellow; background-color: yellow; }
       .paint1 { stroke: blue; background-color: blue; }
@@ -18,6 +18,7 @@
 	  white-space: pre;
       }
       h1 { font-size: 1.5em; }
+      svg.warpikat, #pattern.warpikat { transform: rotate(-90deg); margin-left: 50px; }
     </style>
   </head>
   <body>
@@ -26,7 +27,7 @@
       Example pattern:
     </p>
     <div id="patternarea"></div>
-    <p>
+    <p id="loomarea">
       Weft ikat:
       warp <span class="warp">&nbsp;&nbsp;&nbsp;</span> and
       weft <span class="weft">&nbsp;&nbsp;&nbsp;</span><span class="weft paint1">&nbsp;&nbsp;&nbsp;</span><span class="weft">&nbsp;&nbsp;&nbsp;</span><span class="weft paint2">&nbsp;&nbsp;&nbsp;</span><span class="weft">&nbsp;&nbsp;&nbsp;</span>
@@ -35,6 +36,7 @@
     <div id="svgarea"></div>
     <p>
       <button onclick="resetDrawing(); drawLoom(true)">Animate</button>
+      <button onclick="warpIkatize()">Warp Ikat</button>
     </p>
     <p>
       (dynamic SVG drawing, with JavaScript animation)<br>
@@ -65,11 +67,11 @@
     
     <script type="text/javascript">
       // basic parameters determining size of warp and weft on loom
-      var numbackandforths = 5; // weft starts with shuttle from left to right, than x back and forth trips
+      var numbackandforths = 6; // weft starts with shuttle from left to right, than x back and forth trips
       var numends = 9; // number of "ends", i.e. vertical lengths of yarn, composing the warp
       var scale = 12; // basic unit of everything
       // calculated parameters
-      var numpicks = 1 + 2 * numbackandforths; // total number of "picks", i.e. horizontal lengths of yarn composing the weft
+      var numpicks = 2 * numbackandforths; // total number of "picks", i.e. horizontal lengths of yarn composing the weft
       var i = 2 * scale; // basic interval: space between each vertical warp "end", and each horizontal weft "pick"
       var width = numends * i; // width of the "ends", i.e. straight lines between turns
       var y = i; // vertical position of start of weft
@@ -124,7 +126,7 @@
 	document.getElementById('patternarea').innerHTML =
 	  '<canvas id="pattern2" width="'+w+'" height="'+h+'"></canvas>' +
 	  '<canvas id="pattern" width="'+w*scale+'" height="'+h*scale+'"></canvas>' +
-	  '<br>' + w + ' x ' + h + ' pixels';
+	  '<div id="patterndesc">' + w + ' x ' + h + ' pixels</div>';
 	var canvas2 = document.getElementById('pattern2');
 	var ctx2 = canvas2.getContext('2d');
 	var canvas = document.getElementById('pattern');
@@ -352,6 +354,24 @@
       }
       function clearPath() {
 	document.getElementById('loom').innerHTML = '';
+      }
+      function warpIkatize() {
+	document.getElementById('loom').classList.add('warpikat');
+	document.getElementById('pattern').classList.add('warpikat');
+	var html = document.getElementById('svgarea').innerHTML;
+	html = html.replace('ends', 'PICKS');
+	html = html.replace('picks', 'ends');
+	html = html.replace('PICKS', 'picks');
+	document.getElementById('svgarea').innerHTML = html;
+	html = document.getElementById('loomarea').innerHTML;
+	html = html.replace('Weft ikat', 'Warp ikat');
+	html = html.replace('warp', 'WEFT');
+	html = html.replace('weft', 'warp');
+	html = html.replace('WEFT', 'weft');
+	document.getElementById('loomarea').innerHTML = html;
+	html = document.getElementById('patterndesc').innerHTML;
+	html = html.replace(/(\d+) x (\d+)/, '$2 x $1');
+	document.getElementById('patterndesc').innerHTML = html;
       }
       if (document.addEventListener) document.addEventListener("DOMContentLoaded", autorun, false);
       else if (document.attachEvent) document.attachEvent("onreadystatechange", autorun);
