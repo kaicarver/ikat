@@ -27,7 +27,8 @@
     </p>
     <div id="patternarea"></div>
     <p>
-      Warp <span class="warp">&nbsp;&nbsp;&nbsp;</span> and
+      Weft ikat:
+      warp <span class="warp">&nbsp;&nbsp;&nbsp;</span> and
       weft <span class="weft">&nbsp;&nbsp;&nbsp;</span><span class="weft paint1">&nbsp;&nbsp;&nbsp;</span><span class="weft">&nbsp;&nbsp;&nbsp;</span><span class="weft paint2">&nbsp;&nbsp;&nbsp;</span><span class="weft">&nbsp;&nbsp;&nbsp;</span>
 	    on a loom:
     </p>
@@ -46,6 +47,7 @@
   - way to export weft pattern in the format needed by the yarn-dyeing machine
   - show weft/warp intersections with weft alternately on top or under warp
   - import any image, scale, <a href="https://stackoverflow.com/questions/19129644/how-to-pixelate-an-image-with-canvas-and-javascript">pixelate</a>, and <a href="https://stackoverflow.com/questions/6205955/algorithm-for-color-quantization-reduced-image-color-palette-in-javascript">reduce color palette</a> to produce a pattern
+  - handle warp ikat (basically the same, just rotated 90 degrees...)
     </p>
     <p>
       More info: <a href="https://en.wikipedia.org/wiki/Warp_and_weft">warp and weft</a>,
@@ -80,11 +82,11 @@
       // pattern in the form of a bitmap matrix, or raster
       myApp.raster = [
 	[0,0,0,0,0,0,0,0,0],
-	[0,1,0,0,0,1,0,0,0], // back
+	[0,1,0,0,0,1,0,0,0],
 	[1,1,1,0,1,1,1,0,0],
-	[1,2,1,1,1,2,1,1,0], // back
+	[1,2,1,1,1,2,1,1,0],
 	[2,2,2,1,2,2,2,1,1],
-	[2,1,2,2,2,1,2,2,1], // back
+	[2,1,2,2,2,1,2,2,1],
 	[1,1,1,2,1,1,1,2,2],
 	[1,0,1,1,1,0,1,1,2],
 	[0,0,0,1,0,0,0,1,1],
@@ -93,25 +95,29 @@
       ];
       // pattern turned into linear dyeing instructions of the form [position, color, on|off]
       // actually for ease of use, for each color, of form position-on,position-off, position-on,position-off, ...
-      // TODO: myApp.vector = vectorize(myApp.raster);
-      myApp.vector = [
+      myApp.w = myApp.raster[0].length;
+      myApp.h = myApp.raster.length;
+      myApp.vector = [ // for debugging
 	[], // not used
 	[   // color 1
-	  10,11, 14,15, // Wrong! 2nd pick should be right to left
+	  12,13, 16,17,
 	  18,21, 22,25,
-	  27,28, 29,32, 33,34, // Wrong! 4th pick should be right to left
-	  39,40, 43,44,
-	  46,47, 49,50, 53,54 // Wrong! 6th pick should be right to left
+	  28,30, 31,34, 35,36,
+	  39,40, 43,46,
+	  48,49, 52,53,
+	  54, 57, 58, 61, 64, 66, 67, 70, 71, 72, 75, 76, 79, 82
 	],
 	[   // color 2
-	  28,29, 32,33, // Wrong! 4th pick should be right to left
+	  30,31, 34,35,
 	  36,39, 40,43,
-	  45,46, 47,50, 51,53 // Wrong! 6th pick should be right to left
+	  46,48, 49,52, 53,54,
+	  57, 58, 61, 64
 	]
       ];
+      myApp.vector = vectorize(myApp.raster);
       function drawPattern() {
-	var w = myApp.raster[0].length;
-	var h = myApp.raster.length;
+	var w = myApp.w;
+	var h = myApp.h
 	var scale = 20;
 	var scale2 = 1;
 	//console.log(myApp.raster, myApp.raster[0].length + " x " + myApp.raster.length); //JSON.stringify(myApp.raster).replace(/\],\[/g, "],\n[")
@@ -163,35 +169,50 @@
 	// into a series of instructions for coloring a piece of yarn
 	// that duplicates the pattern if threaded horizontally back and forth
 	// TODO: not implemented
-	for (var y = 0; y < h; y++) {
-	  for (var x = 0; x < w; x++) {
-	    var val = raster[y][x];
-	    if (val != 0) {
-	      if (val == 1) {
-	      } else if (val == 2) {
+	var pos;
+	var colors = [0,0,0];
+	var vals = [[],[],[]];
+	for (var curCol = 1; curCol <= 2; curCol++) {
+	  pos = 0;
+	for (var y = 0; y < myApp.h; y++) {
+	  for (var x = 0; x < myApp.w; x++) {
+	    var val = y%2==0 ? raster[y][x] : raster[y][myApp.w-x-1];
+	    if (val == curCol) {
+	      if (colors[curCol] == 0) {
+		vals[curCol].push(pos);
+		colors[val] = 1;
+	      }
+	    } else {
+	      if (colors[curCol] == 1) {
+		vals[curCol].push(pos);
+		colors[curCol] = 0;
 	      }
 	    }
+	    pos++;
 	  }
-	}	
+	}
+	}
+	return vals;
       }
       // current run positions in the vector array, by color
-      var vectorRunPositions = [0, 0, 0]; // first position not used
+      var vectorRunPositions;
       function vectorRunInit() {
 	var colors = [1, 2];
+	vectorRunPositions = [0, 0, 0]; // first position not used
 	return colors;
       }
       // returns color to paint and maximum distance it can be painted
       function vectorRun(color, position) {
 	var curPos = vectorRunPositions[color];
-	// TODO: handle multiple colors properly...
 	while (myApp.vector[color][curPos] < position) curPos++;
+	vectorRunPositions[color] = curPos;
 	var distcurcolor = myApp.vector[color][curPos] - position;
 	var distnewcolor = curPos < myApp.vector[color].length-1 ? myApp.vector[color][curPos+1] - position : Number.MAX_SAFE_INTEGER;
 	var retcolor = curPos % 2 == 0 ? 0 : color;
 	if (position < myApp.vector[color][curPos]) {
 	  return [(    curPos % 2 == 0 ? 0 : color), distcurcolor];
 	} else {
-	  return [((curPos+1) % 2 == 0 ? 0 : color), distnewcolor];
+	  return [((curPos+1) % 2 == 0 || curPos == myApp.vector[color].length ? 0 : color), distnewcolor];
 	}
       }
       function drawLoom(drawDelayed) {
@@ -209,6 +230,7 @@
 	// draw weft
 	setDelayInterval(100);
 	// draw the start of the weft yarn
+	vectorRunInit();
 	drawTail(0);
 	for (var pick = 0; pick < numpicks; pick++) {
 	  drawPick(pick);
@@ -262,14 +284,23 @@
       }
       function drawPick(pick) {
 	var yy = y+(pick*i);
-	if (pick%2 == 1) {
-	  // pick crosses loom from right to left
-	  drawPart(drawPath('weft paint1', 'M'+(i+width)+','+(yy)+' '+(i+width/2)+','+(yy)+' '));
-	  drawPart(drawPath('weft', 'M'+(i+width/2)+','+(yy)+' '+i+','+(yy)+' '));
-	} else {
-	  // pick crosses loom from left to right
-	  drawPart(drawPath('weft paint2', 'M '+i+','+(yy)+' '+(i+width/2)+','+(yy)+' '));
-	  drawPart(drawPath('weft', 'M '+(i+width/2)+','+(yy)+' '+(i+width)+','+(yy)+' '));
+	var pos, col, dist;
+	var w = myApp.w;
+	for (var curColor = 1; curColor <= 2; curColor++) {
+	  pos = 0;
+	  while (pos < w) {
+	    var a = vectorRun(curColor, pick * numends + pos);
+	    col = a[0]; dist = Math.min(a[1], w - pos);
+	    //console.log(pick+','+curColor+': color: ' + col + ' dist: ' + dist);
+	    if (curColor == 1 || col != 0) {
+	      if (pick%2 == 0) { // pick crosses loom from left to right
+		drawPart(drawPath('weft paint' + col, 'M '+(i+pos*i)+','+(yy)+' '+(i+(pos+dist)*i)+','+(yy)+' '));
+	      } else {           // pick crosses loom from right to left
+		drawPart(drawPath('weft paint' + col, 'M '+(i+(w-pos)*i)+','+(yy)+' '+(i+(w-(pos+dist))*i)+','+(yy)+' '));
+	      }
+	    }
+	    pos += dist;
+	  }
 	}
       }
       function drawCurve(pick) {
@@ -288,6 +319,7 @@
 	return p;
       }
       function drawPart(part) {
+	//console.log(part);
 	if (bufferedDraw) {
 	  bufferedSVG += part;
 	} else {
