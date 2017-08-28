@@ -14,6 +14,7 @@
       canvas#pattern, canvas#pattern2 { border: 1px solid lightgray; }
       canvas#pattern { margin-left: 40px; }
       .preformatted {
+	  font-size: 0.8em;
 	  font-family: monospace;
 	  white-space: pre;
       }
@@ -36,7 +37,7 @@
     <div id="svgarea"></div>
     <p>
       <button onclick="resetDrawing(); drawLoom(true)">Animate</button>
-      <button onclick="warpIkatize()">Warp Ikat</button>
+      <button onclick="warpIkatize(this)">Warp Ikat</button>
     </p>
     <p>
       (dynamic SVG drawing, with JavaScript animation)<br>
@@ -54,6 +55,8 @@
   - add ways to replicate pattern for a bigger piece of fabric
   - add way to dye groups of yarn, as is often done
   - simulate ikat "blurring" by introducing a little random misalignment for each end or pick
+  - second level of on-off: paint spray can be turned on/off to save paint and mess when not needed 
+  - handle latencies
     </p>
     <p>
       More info: <a href="https://en.wikipedia.org/wiki/Warp_and_weft">warp and weft</a>,
@@ -174,7 +177,6 @@
 	// turns a raster in the form of a two-dimensional matrix of colors
 	// into a series of instructions for coloring a piece of yarn
 	// that duplicates the pattern if threaded horizontally back and forth
-	// TODO: not implemented
 	var pos;
 	var colors = [0,0,0];
 	var vals = [[],[],[]];
@@ -203,7 +205,7 @@
       // current run positions in the vector array, by color
       var vectorRunPositions;
       function vectorRunInit() {
-	var colors = [1, 2];
+	var colors = [0, 1, 2];
 	vectorRunPositions = [0, 0, 0]; // first position not used
 	return colors;
       }
@@ -359,23 +361,29 @@
       function clearPath() {
 	document.getElementById('loom').innerHTML = '';
       }
-      function warpIkatize() {
-	document.getElementById('loom').classList.add('warpikat');
-	document.getElementById('pattern').classList.add('warpikat');
-	var html = document.getElementById('svgarea').innerHTML;
-	html = html.replace('ends', 'PICKS');
-	html = html.replace('picks', 'ends');
-	html = html.replace('PICKS', 'picks');
-	document.getElementById('svgarea').innerHTML = html;
-	html = document.getElementById('loomarea').innerHTML;
-	html = html.replace('Weft ikat', 'Warp ikat');
-	html = html.replace('warp', 'WEFT');
-	html = html.replace('weft', 'warp');
-	html = html.replace('WEFT', 'weft');
-	document.getElementById('loomarea').innerHTML = html;
-	html = document.getElementById('patterndesc').innerHTML;
-	html = html.replace(/(\d+) x (\d+)/, '$2 x $1');
-	document.getElementById('patterndesc').innerHTML = html;
+      function warpIkatize(button) {
+	console.log(button.innerText);
+	if (button.innerText == 'Warp Ikat') {
+	  document.getElementById('loom').classList.add('warpikat');
+	  document.getElementById('pattern').classList.add('warpikat');
+	  var html = document.getElementById('svgarea').innerHTML;
+	  html = html.replace('ends', 'PICKS');
+	  html = html.replace('picks', 'ends');
+	  html = html.replace('PICKS', 'picks');
+	  document.getElementById('svgarea').innerHTML = html;
+	  html = document.getElementById('loomarea').innerHTML;
+	  html = html.replace('Weft ikat', 'Warp ikat');
+	  html = html.replace('warp', 'WEFT');
+	  html = html.replace('weft', 'warp');
+	  html = html.replace('WEFT', 'weft');
+	  document.getElementById('loomarea').innerHTML = html;
+	  html = document.getElementById('patterndesc').innerHTML;
+	  html = html.replace(/(\d+) x (\d+)/, '$2 x $1');
+	  document.getElementById('patterndesc').innerHTML = html;
+	  button.innerText = 'Weft Ikat';
+	} else {
+	  location.reload();
+	}
       }
       if (document.addEventListener) document.addEventListener("DOMContentLoaded", autorun, false);
       else if (document.attachEvent) document.attachEvent("onreadystatechange", autorun);
