@@ -1,0 +1,113 @@
+Hey JB,
+
+Below are some notes from our meeting. 
+
+Hope they are readable, let me know if they seem ok or if I misunderstand anything.
+
+Or don't bother to read it, who reads specs or documentation anyway! ;-)
+
+Here's my current ikat picture page, will make it a closer match to our discussion later.
+https://rawgit.com/kaicarver/ikat/master/index.html
+
+... So now I've done a picture and written a memo. Wow. I think I should be in marketing! ;-)
+
+We can talk on the phone whenever you like, good luck with the hardware, and I'll write more when I have made some progress.
+
+k
+
+
+Notes from our meeting:
+-------------------------------
+
+For now 2 colors [though I would recommend first doing only one color to keep it simple...]
+
+Just to simplify, here's what is needed for one-color printing, 
+
+I'll add complications* later, let's first see if I get the simplistic process right:
+
+
+Several levels of input:
+
+This is a description of the different levels we go through to go from an abstract picture design to a kind of simplified G-code (I-kode?), a set of instructions for the yarn-dyeing machine to produce yarn ready for ikat weaving.
+https://en.wikipedia.org/wiki/G-code
+https://en.wikipedia.org/wiki/Plotter (it's also a bit like a simplified plotter language like HP-GL)
+
+
+0. Picture: A bitmap of any size (or algorithm, such as checkerboard, stripes, diagonals, ...)
+
+This is the pattern we want to reproduce using ikat.
+
+
+1. Matrix: A bitmap matrix matching the dimensions of warp and weft.
+
+This is the same pattern, adapted to fit the number and thickness/spacing of the warp ends (vertical/longitudinal threads) and the number (and thickness/spacing) of weft picks (horizontal/transverse).
+
+[Question: do we want to / need to handle different kinds of twill? So far I have been assuming plain weave, i.e. 1/1 twill. I'm guessing satin is not interesting for us.
+https://en.wikipedia.org/wiki/Plain_weave
+https://en.wikipedia.org/wiki/Twill 
+https://en.wikipedia.org/wiki/Satin]
+The matrix can be read from top to bottom, line by line and back-and-forth boustrophedon-style to get the one-dimensional matrix that corresponds to the (ideal) weft.
+
+
+2. Vector: A series of yarn-dyeing instructions of the form: [color, on|off, position]
+
+This needs to take into account the extra yarn in the curved part between each pick of the weft ("between-pick" segments).
+
+
+--- ↑ More virtual above ↑  
+--- ↓ More physical machine detail below ↓ 
+
+
+3. Machine code: A series of instructions of the form: [time, toggle on/off] for the on/off color wheel
+
+The time depends on the speed of the thread as it passes in front of the painting mechanism.
+The toggle-on/off is a command via Arduino to a stepper-motor that rotates a disc with 12 slits by 15 degrees. Successful rotations of the disc produce paint on/off/on/off/etc.
+
+
+* Complications:
+
+1) multiple colors: requires a timing offset for each color at level 3
+
+2) second level of on-off: the paint spray can be turned on and off to save paint and mess when not needed (can be calculated at level 2)
+
+3) adjustment/compensation variables of various kinds at level 3: 
+    physical characteristics of the device: 
+      on/off commands latencies of wheel rotation, spray on/off button, 
+      how tight is the yarn?, 
+      what kind of slippage, ...
+
+4) need reference marks on the between-pick curved segments of yarn to help loom operator make sure things are lined up correctly
+
+***
+
+It's much easier to weave warp ikat. It's very likely this way with programming.
+
+I need to have a number of printed warps of length L1.
+
+They are printed over a continuous yarn in a zigzag manner.
+
+Each segment of the warp has to be divided by a gap length of L2.
+
+On the gap, I'll print dashed lines of either of the two colors.
+
+The beginning of the yarn is marked by a color 1, color 2 dash line.
+
+Odd numbered warps are printed upside down.
+
+Odd numbered gaps are marked by color 1.
+
+Odd numbered warps are printed backwards.
+
+Even numbered gaps are marked by color 2.
+
+Every 10th gap is marked by a color 1, blank, color 2, blank dashed line. 
+
+The gaps are to tied to a rotatable beam of the loom which is the cloth collector beam with a ratchet shown on the picture.
+
+***
+
+Generally, gaps between warps are wider than thoese between wefts.
+
+Warps are tied to the beams at a preset interval. They are aparted by default unless you want them to be really really close to each other. The LPI or lines per inch of warps are fixed and predetermined.
+
+In contrast, wefts are "packed" when they are in place. With my loom, the blade-like shuttle pushes the recently inserted weft yarn to meet previously inserted wefts. It's more difficult to estimate the LPI or lines per inch of wefts. If you can't evenly pack each weft, you may end up with accumulated errors.
