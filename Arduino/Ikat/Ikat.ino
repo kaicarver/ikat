@@ -32,11 +32,39 @@ void setup() {
 
 // the loop function runs over and over again forever
 void loop() {
-  // Initial pattern is a simple striped pattern
+  // Pattern is repeated Morse code "SOS"
+  // S----   O----------   S----       
+  // =.=.=...===.===.===...=.=.=.......
+  dot(); dot(); dot();    // S
+  letterSpace();
+  dash(); dash(); dash(); // 0
+  letterSpace();
+  dot(); dot(); dot();    // S
+  letterSpace();
+  wordSpace();
+}
+
+// Morse functions just for testing
+int s = 200; // Morse code speed, the length of a dot or of the space between symbols
+void dot() {
   slitPaintOn();
-  delay(500); // wait for a second
+  delay(1*s); // paint for 1 unit
   slitPaintOff();
-  delay(500); // wait for a second
+  delay(1*s); // no paint for 1 unit
+}
+void dash() {
+  slitPaintOn();
+  delay(3*s); // paint for 3 units
+  slitPaintOff();
+  delay(1*s); // no paint for 1 unit
+}
+void letterSpace() {
+  slitPaintOff();
+  delay(2*s); // no paint for 2 units
+}
+void wordSpace() {
+  slitPaintOff();
+  delay(4*s); // no paint for 4 units
 }
 
 // Paint operations are currently simulated with an LED
