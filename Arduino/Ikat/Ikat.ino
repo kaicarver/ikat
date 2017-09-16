@@ -67,15 +67,53 @@ void wordSpace() {
   delay(4*s); // no paint for 4 units
 }
 
-// Paint operations are currently simulated with an LED
+// Stepper configuration
+#include <Stepper.h>
+
+// change this to fit the number of steps per revolution for your motor
+const int stepsPerRevolution = 200;
+
+// initialize the stepper library on pins 8 through 11:
+Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11);
+boolean useStepper = false;
+
+// Painting is controlled by stepper motor rotating a wheel with n slits
+// Paint operations are also simulated with an LED for testing
+boolean slitPaintIsOn = false;
 void slitPaintInit() {
+  slitPaintIsOn = false; // start out not painting
+  if (useStepper) {
+    // set the speed at 60 rpm:
+    myStepper.setSpeed(60);
+  }
+  // initialize the serial port:
+  Serial.begin(9600);
+
   // initialize digital pin LED_BUILTIN as an output.
   pinMode(LED_BUILTIN, OUTPUT);
 }
 void slitPaintOn() {
-  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  if (!slitPaintIsOn) {
+    if (useStepper) {
+      // step one revolution in one direction:
+      Serial.println("stepper on");
+      myStepper.step(stepsPerRevolution);
+    }
+    Serial.println("LED on");
+    digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    slitPaintIsOn = true;
+  }
 }
 void slitPaintOff() {
-  digitalWrite(LED_BUILTIN, LOW);   // turn the LED off by making the voltage LOW
+  if (slitPaintIsOn) {
+    if (useStepper) { 
+      // step one revolution in one direction:
+      //Serial.println("stepper off");
+      myStepper.step(stepsPerRevolution);
+    }
+    Serial.println("LED off");
+    digitalWrite(LED_BUILTIN, LOW);   // turn the LED off by making the voltage LOW
+    slitPaintIsOn = false;
+  }
 }
 
