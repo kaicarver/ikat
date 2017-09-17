@@ -20,6 +20,7 @@
       }
       h1 { font-size: 1.5em; }
       svg.warpikat, #pattern.warpikat { transform: rotate(-90deg); margin-left: 50px; }
+      #paintcodes { width: 40em; height: 25em; }
     </style>
   </head>
   <body>
@@ -41,7 +42,24 @@
       <button onclick="taoyuanPattern()">Taoyuan</button>
     </p>
     <p>
+      Generated paint on/off timecodes for paint machine:<br>
+      <textarea id="paintcodes"></textarea>.
+    </p>
+    <p>
       (dynamic SVG drawing, with JavaScript animation)<br>
+    </p>
+    <p>
+      More info: <a href="https://en.wikipedia.org/wiki/Warp_and_weft">warp and weft</a>,
+      <a href="https://en.wikipedia.org/wiki/Ikat">ikat weaving</a>,
+      real-life examples:
+      <a href="http://www.arumfellow.com/textiles/solola-ikat-fabric.html">Sololá</a>,
+      <a href="http://www.stony-hill-madison.com/solola-old-tzute-with-warp-ikat/">Sololá (warp)</a>,
+      <a href="https://www.etsy.com/listing/226266379/ikat-handmade-fabric-59-from-guatemala">more Guatemala</a>,
+      <a href="http://blog.apliiq.com/site/ikat/">weft ikat samples</a>,
+      <a href="http://www.andreaschewedesign.com/blog/weaving-ikat">Bali</a>.
+    </p>
+    <p>
+      <a href="https://github.com/kaicarver/ikat">Source code on Github</a>.
     </p>
     <p class="preformatted">TODO:
   - way to export weft pattern in the format needed by the yarn-dyeing machine
@@ -58,19 +76,6 @@
   - simulate ikat "blurring" by introducing a little random misalignment for each end or pick
   - second level of on-off: paint spray can be turned on/off to save paint and mess when not needed 
   - handle latencies
-    </p>
-    <p>
-      More info: <a href="https://en.wikipedia.org/wiki/Warp_and_weft">warp and weft</a>,
-      <a href="https://en.wikipedia.org/wiki/Ikat">ikat weaving</a>,
-      real-life examples:
-      <a href="http://www.arumfellow.com/textiles/solola-ikat-fabric.html">Sololá</a>,
-      <a href="http://www.stony-hill-madison.com/solola-old-tzute-with-warp-ikat/">Sololá (warp)</a>,
-      <a href="https://www.etsy.com/listing/226266379/ikat-handmade-fabric-59-from-guatemala">more Guatemala</a>,
-      <a href="http://blog.apliiq.com/site/ikat/">weft ikat samples</a>,
-      <a href="http://www.andreaschewedesign.com/blog/weaving-ikat">Bali</a>.
-    </p>
-    <p>
-      <a href="https://github.com/kaicarver/ikat">Source code on Github</a>.
     </p>
     
     <script type="text/javascript">
@@ -116,7 +121,7 @@
 	var h = myApp.h
 	var scale = 20;
 	var scale2 = 1;
-	//nsole.log(myApp.raster, myApp.raster[0].length + " x " + myApp.raster.length); //JSON.stringify(myApp.raster).replace(/\],\[/g, "],\n[")
+	//console.log(myApp.raster, myApp.raster[0].length + " x " + myApp.raster.length); //JSON.stringify(myApp.raster).replace(/\],\[/g, "],\n[")
 	document.getElementById('patternarea').innerHTML =
 	  '<canvas id="pattern2" width="'+w+'" height="'+h+'"></canvas>' +
 	  '<canvas id="pattern" width="'+w*scale+'" height="'+h*scale+'"></canvas>' +
@@ -225,6 +230,7 @@
 	// draw weft
 	setDelayInterval(100);
 	// draw the start of the weft yarn
+	initPaintCommands();
 	vectorRunInit();
 	drawTail(0);
 	for (var pick = 0; pick < numpicks; pick++) {
@@ -267,6 +273,7 @@
 	drawPart('<use x="'+(end*i)+'" y="0" xlink:href="#oneend" />');
       }
       function drawTail(pick) {
+	doTail();
 	var yy = y+(pick*i);
 	if (pick == 0 || pick%2 == 1) {
 	  // first pick starts straight from left, goes towards right
@@ -278,9 +285,12 @@
 	}
       }
       function drawPick(pick) {
+	doPickStart();
+	paintCommand("#pick "+pick, true, 0);
 	var yy = y+(pick*i);
 	var pos, col, dist;
 	var w = myApp.w;
+	var paintOn = false;
 	for (var curColor = 1; curColor <= 2; curColor++) {
 	  pos = 0;
 	  while (pos < w) {
@@ -290,15 +300,30 @@
 	    if (curColor == 1 || col != 0) {
 	      if (pick%2 == 0) { // pick crosses loom from left to right
 		drawPart(drawPath('weft paint' + col, 'M '+(i+pos*i)+','+(yy)+' '+(i+(pos+dist)*i)+','+(yy)+' '));
+		if (!(pos == 0 && col == 0)) {
+		  paintOn = (col != 0);
+		  paintCommand(pos, false, pos);
+		}
 	      } else {           // pick crosses loom from right to left
 		drawPart(drawPath('weft paint' + col, 'M '+(i+(w-pos)*i)+','+(yy)+' '+(i+(w-(pos+dist))*i)+','+(yy)+' '));
+		if (!(pos == 0 && col == 0)) {
+		  paintOn = (col != 0);
+		  paintCommand(pos, false, pos);
+		}
 	      }
 	    }
 	    pos += dist;
 	  }
 	}
+	if (paintOn) {
+	  paintCommand(pos, false, pos);
+	} else {
+	  doPickEnd(pos);
+	  paintCommand('# time ' + pos, true, pos);
+	}
       }
       function drawCurve(pick) {
+	doCurve();
 	var yy = y+(pick*i);
 	if (pick%2 == 0) {	
 	  drawPart(drawPath('weft', 'M'+(i+width)+','+(yy)+' A'+(i/2)+','+(i/2)+' 0 1,1 '+(i+width)+','+(yy+i)+' ')); // right side half-circle
@@ -389,6 +414,46 @@
 	drawPattern();
 	resetDrawing();
 	drawLoom();
+      }
+      // 
+      var cmdCount = 0;
+      var timeInterval = 500; // basic unit of time, in milliseconds
+      var currentTime = 0; // relative time used for commands
+      var curveLength = 10; // length of loop between picks/ends, in units
+      function doTail() {
+	// either end of the yarn arbitrarily set to 1.5 * a curve
+	paintCommand("#tail " + currentTime, true);
+	currentTime += 1.5 * curveLength * timeInterval;
+      }
+      function doCurve() {
+	// TODO: put mark for calibration in middle of the curve
+	paintCommand("#curve " + currentTime, true);
+	currentTime += curveLength * timeInterval;
+      }
+      var pickPos = 0;
+      function doPickStart() {
+	pickPos = 0;
+      }
+      function doPickEnd(pos) {
+	currentTime += (pos - pickPos) * timeInterval;
+      }
+      function initPaintCommands() {
+	cmdCount = 0;
+	currentTime = 0;
+	document.getElementById('paintcodes').value = '';
+      }
+      function paintCommand(cmd, isComment, pos) {
+	if (!isComment) {
+	  currentTime += timeInterval * (pos - pickPos);
+	  pickPos = pos;
+	  //document.getElementById('paintcodes').value += cmdCount + ': ' + ((cmdCount % 2 == 0) ? 'ON ' : 'OFF ') + " ";
+	  document.getElementById('paintcodes').value += currentTime + ", // "+((cmdCount % 2 == 0) ? 'ON ' : 'OFF ')+"\n";
+	  //document.getElementById('paintcodes').value += " ";
+	  cmdCount++;
+	}
+	//document.getElementById('paintcodes').value += cmd + "\n";
+	//currentTime += timeInterval * (pos - pickPos);
+	//pickPos = pos;
       }
       if (document.addEventListener) document.addEventListener("DOMContentLoaded", autorun, false);
       else if (document.attachEvent) document.attachEvent("onreadystatechange", autorun);
