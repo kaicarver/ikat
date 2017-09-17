@@ -20,6 +20,7 @@ void setupTimes() {
   for (int i = 0; i < count; i++) {
     Serial.println(slitCmds[i]);
   }
+  curTime = 0; // reset timer to use when printing
 }
 
 void dot() {
@@ -52,78 +53,70 @@ void setup() {
   pinMode(3, OUTPUT);
 }
 
+void stepOn() {
+  digitalWrite(2,  LOW);
+  digitalWrite(3, HIGH);  
+}
+void stepOff() {
+  digitalWrite(2, HIGH);
+  digitalWrite(3,  LOW);
+}
+
 void loop() {
+  unsigned long currentMillis = millis();
   // Morse code S O S
   // S
-  digitalWrite(2,  LOW);
-  digitalWrite(3, HIGH);
+  stepOn();
   delay(300);
-  digitalWrite(2, HIGH);
-  digitalWrite(3,  LOW);
+  stepOff();
   delay(300);
   
-  digitalWrite(2,  LOW);
-  digitalWrite(3, HIGH);
+  stepOn();
   delay(300);
-  digitalWrite(2, HIGH);
-  digitalWrite(3,  LOW);
+  stepOff();
   delay(300);
   
-  digitalWrite(2,  LOW);
-  digitalWrite(3, HIGH);
+  stepOn();
   delay(300);
-  digitalWrite(2, HIGH);
-  digitalWrite(3,  LOW);
+  stepOff();
   delay(300);
 
   // space between letters
   delay(600);
 
   // O
-  digitalWrite(2,  LOW);
-  digitalWrite(3, HIGH);
+  stepOn();
   delay(900);
-  digitalWrite(2, HIGH);
-  digitalWrite(3,  LOW);
+  stepOff();
   delay(300);
   
-  digitalWrite(2,  LOW);
-  digitalWrite(3, HIGH);
+  stepOn();
   delay(900);
-  digitalWrite(2, HIGH);
-  digitalWrite(3,  LOW);
+  stepOff();
   delay(300);
   
-  digitalWrite(2,  LOW);
-  digitalWrite(3, HIGH);
+  stepOn();
   delay(900);
-  digitalWrite(2, HIGH);
-  digitalWrite(3,  LOW);
+  stepOff();
   delay(300);
 
   // space between letters
   delay(600);
 
   // S
-  digitalWrite(2,  LOW);
-  digitalWrite(3, HIGH);
+  stepOn();
   delay(300);
-  digitalWrite(2, HIGH);
-  digitalWrite(3,  LOW);
+  stepOff();
   delay(300);
   
-  digitalWrite(2,  LOW);
-  digitalWrite(3, HIGH);
+  stepOn();
   delay(300);
-  digitalWrite(2, HIGH);
-  digitalWrite(3,  LOW);
+  stepOff();
   delay(300);
   
-  digitalWrite(2,  LOW);
-  digitalWrite(3, HIGH);
+  stepOn();
   delay(300);
-  digitalWrite(2, HIGH);
-  digitalWrite(3,  LOW);
+  stepOff();
   delay(300);
 
   // space between letters
