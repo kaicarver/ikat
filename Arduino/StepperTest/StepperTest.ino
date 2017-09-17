@@ -1,8 +1,8 @@
-// Basic Stepper test
+// Basic yarn-painting machine
 
-// writes Morse code "S O S" forever
+// Writes a pattern defined in an array of on/off time codes
 
-// circuit: Red to Ground, Orange to D2, Yellow to D3
+// Circuit: Red to Ground, Orange to D2, Yellow to D3
 
 const int maxCmds = 300; // Arduino Nano size limits us to no more than 300 or so long commands, 600 int
 unsigned long slitCmds[maxCmds]; // TODO: this size should be checked for
@@ -60,8 +60,13 @@ void morseSOS() {
   wordSpace();
 }
 
-// This is the printing code:
+// This is the real painting code:
 // paint according to an array of on/off timecodes
+
+int slitCmdIndex = 0;
+unsigned long tInitial = millis();
+unsigned long curPaintOn = 0;
+unsigned long curPaintOff = 0;
 
 void setup() {
   // initialize the serial port:
@@ -69,11 +74,8 @@ void setup() {
   setupTimes(); // this is only for testing: the pattern to be painted should be calculated upstream
   pinMode(2, OUTPUT);
   pinMode(3, OUTPUT);
+  tInitial = millis();
 }
-
-int slitCmdIndex = 0;
-
-unsigned long tInitial = millis();
 
 void loop() {
   unsigned long t = millis() - tInitial; // relative time
@@ -81,27 +83,33 @@ void loop() {
     if (t >= slitCmds[slitCmdIndex]) {
       if ((slitCmdIndex % 2) == 0) {
         stepOn();  // turn paint on if not already on
+        Serial.print("no paint: ");
+        Serial.println(t - curPaintOff);
+        curPaintOn = t;
       } else {
         stepOff(); // turn off if not already off
+        Serial.print("painted ----> : ");
+        Serial.println(t - curPaintOn);
+        curPaintOff = t;
       }
       slitCmdIndex++;
     }
   } else {
     // we executed all the commands in the array
-    Serial.println("done printing!");
+    Serial.println("done painting!");
     delay(60000);
   }
 }
 
 void stepOn() {
   logCount();
-  Serial.println("step ON");
+  Serial.print("step ON ");
   digitalWrite(2,  LOW);
   digitalWrite(3, HIGH);  
 }
 void stepOff() {
   logCount();
-  Serial.println("step OFF");
+  Serial.print("step OFF ");
   digitalWrite(2, HIGH);
   digitalWrite(3,  LOW);
 }
