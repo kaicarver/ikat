@@ -7,7 +7,7 @@
 const int maxCmds = 300; // Arduino Nano size limits us to no more than 300 or so long commands, 600 int
 unsigned long slitCmds[maxCmds]; // TODO: this size should be checked for
 
-const int interval = 200; // the basic element of time in milliseconds
+const int interval = 500; // the basic element of time in milliseconds
 int count = 0; // this counts the commands
 unsigned long curTime = 0; // just used to calculate times for array
 
@@ -18,6 +18,7 @@ void setupTimes() {
   Serial.println(interval);
   Serial.println("setup array of timed on/off commands...");
   // print SOS twice
+  morseSOS();
   morseSOS();
   morseSOS();
   Serial.print("number of commands: ");
