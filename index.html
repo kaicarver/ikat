@@ -116,7 +116,7 @@
 	var h = myApp.h
 	var scale = 20;
 	var scale2 = 1;
-	console.log(myApp.raster, myApp.raster[0].length + " x " + myApp.raster.length); //JSON.stringify(myApp.raster).replace(/\],\[/g, "],\n[")
+	//nsole.log(myApp.raster, myApp.raster[0].length + " x " + myApp.raster.length); //JSON.stringify(myApp.raster).replace(/\],\[/g, "],\n[")
 	document.getElementById('patternarea').innerHTML =
 	  '<canvas id="pattern2" width="'+w+'" height="'+h+'"></canvas>' +
 	  '<canvas id="pattern" width="'+w*scale+'" height="'+h*scale+'"></canvas>' +
@@ -375,15 +375,15 @@
       function taoyuanPattern() {
 	setRaster([
 	  [0,0,0,0,0,0,0,0,0],
-	  [0,1,0,0,0,1,0,0,0],
-	  [1,1,1,0,1,1,1,0,0],
-	  [1,0,1,1,1,0,1,1,0],
-	  [0,0,0,1,0,0,0,1,1],
-	  [0,1,0,0,0,1,0,0,1],
-	  [1,1,1,0,1,1,1,0,0],
-	  [1,0,1,1,1,0,1,1,0],
-	  [0,0,0,1,0,0,0,1,1],
-	  [0,0,0,0,0,0,0,0,1],
+	  [1,1,1,1,1,1,1,1,1],
+	  [0,0,1,0,0,0,0,0,0],
+	  [0,0,1,0,1,0,0,0,1],
+	  [0,0,1,0,1,1,0,1,1],
+	  [0,0,1,0,0,1,1,1,0],
+	  [0,0,1,0,0,0,1,0,0],
+	  [0,0,1,0,0,0,1,0,0],
+	  [0,0,1,0,0,0,1,0,0],
+	  [0,0,1,0,0,0,1,0,0],
 	  [0,0,0,0,0,0,0,0,0],
 	]);
 	drawPattern();
